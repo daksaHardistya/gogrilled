@@ -11,34 +11,51 @@ use App\Models\tabel_orderProduk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage; // Pastikan ini ada
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
     public function orderShow(Request $request)
     {
-        $query = tabel_order::with(['data_pelanggan', 'order_produk.produk', 'order_paket.paket']);
+        $query = tabel_order::with(['data_pelanggan', 'order_paket.paket', 'order_produk.produk'])->orderBy('created_at', 'desc');
 
-        // Filter berdasarkan bulan jika tersedia
+        // Filter berdasarkan bulan
         if ($request->filled('bulan')) {
             try {
-                [$tahun, $bulan] = explode('-', $request->bulan);
-                $query->whereYear('created_at', $tahun)->whereMonth('created_at', $bulan);
+                $date = \Carbon\Carbon::createFromFormat('Y-m', $request->bulan);
+                $query->whereYear('created_at', $date->year)->whereMonth('created_at', $date->month);
             } catch (\Exception $e) {
-                // Jika format tidak valid, bisa diabaikan atau tambahkan log
+                // abaikan jika format tidak valid
             }
         }
 
-        // Ambil semua data yang difilter (atau tidak difilter)
-        $orders = $query->orderBy('created_at', 'desc')->get();
+        // Filter berdasarkan pencarian nama atau nomor telepon
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->whereHas('data_pelanggan', function ($q) use ($cari) {
+                $q->where('nama_pel', 'like', "%$cari%")->orWhere('nomor_tlp', 'like', "%$cari%");
+            });
+        }
 
-        // Kelompokkan berdasarkan nomor telepon (orang yang sama)
-        $groupedOrders = $orders->groupBy(function ($order) {
-            return optional($order->data_pelanggan)->nomor_tlp ?? 'Tanpa Nomor';
-        });
+        // Ambil semua order dulu
+        $orders = $query->get();
 
-        return view('admin.order', compact('orders', 'groupedOrders'));
+        // Filter pelanggan inaktif berdasarkan parameter inaktif (1–6 bulan)
+        $hiddenNumbers = collect();
+        if ($request->filled('inaktif')) {
+            $bulan = $request->inaktif;
+            $batasWaktu = now()->subMonths($bulan);
+
+            // Ambil nomor pelanggan yang masih aktif (order dalam x bulan terakhir)
+            $activeNumbers = tabel_order::where('created_at', '>=', $batasWaktu)->pluck('id_pel')->unique();
+
+            // Ambil nomor pelanggan dari data pelanggan
+            $hiddenNumbers = \App\Models\data_pelanggan::whereNotIn('id_pel', $activeNumbers)->pluck('nomor_tlp');
+        }
+
+        return view('admin.order', compact('orders', 'hiddenNumbers'));
     }
+
     public function dashboard()
     {
         $orders = tabel_order::with('data_pelanggan')->orderBy('created_at', 'desc')->get();
@@ -155,7 +172,7 @@ class AdminController extends Controller
             'nama_produk' => 'required',
             'harga_produk' => 'required|numeric',
             'stock_produk' => 'required|integer',
-            'image_produk' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB 
+            'image_produk' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB
         ]);
 
         if ($request->hasFile('image_produk')) {
@@ -183,7 +200,7 @@ class AdminController extends Controller
             'nama_produk' => 'required',
             'harga_produk' => 'required|numeric',
             'stock_produk' => 'required|integer',
-            'image_produk' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB 
+            'image_produk' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB
         ]);
 
         if ($request->hasFile('image_produk')) {
@@ -275,7 +292,7 @@ class AdminController extends Controller
             'kategori_paket' => 'required',
             'harga_paket' => 'required|numeric',
             'stock_paket' => 'required|integer',
-            'image_paket' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB 
+            'image_paket' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB
         ]);
 
         if ($request->hasFile('image_paket')) {
@@ -290,7 +307,6 @@ class AdminController extends Controller
             // agar tidak menimpa dengan null jika kolomnya tidak nullable
             unset($data['image_paket']);
         }
-
 
         $paket->update($data);
         return redirect()->route('admin.paket.show')->with('success', 'Paket berhasil diperbarui');
@@ -386,7 +402,7 @@ function kirimPesanWA($nomor, $pesan)
         return json_decode($response->getBody(), true);
     } catch (\GuzzleHttp\Exception\RequestException $e) {
         // Tangani kesalahan jika pengiriman pesan WA gagal
-        Log::error("Failed to send WhatsApp message: " . $e->getMessage());
+        Log::error('Failed to send WhatsApp message: ' . $e->getMessage());
         // Anda bisa mengembalikan false atau melempar exception lagi
         return false;
     }

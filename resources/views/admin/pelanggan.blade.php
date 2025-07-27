@@ -11,11 +11,7 @@
                 </tr>
                 <tr class="border-b">
                     <td class="py-2 font-semibold">Email</td>
-                    <td class="py-2">
-                        <a href="mailto:{{ $pelanggan->email_pel }}" class="text-blue-600 hover:underline">
-                            {{ $pelanggan->email_pel }}
-                        </a>
-                    </td>
+                    <td class="py-2">{{ $pelanggan->email_pel }}</td>
                 </tr>
                 <tr class="border-b">
                     <td class="py-2 font-semibold">Nomor Telepon</td>
@@ -25,7 +21,6 @@
                             $nomor_wa = '62' . substr($nomor_wa, 1);
                         }
                     @endphp
-
                     <td class="py-2">
                         <a href="https://wa.me/{{ $nomor_wa }}" target="_blank"
                             class="text-green-600 hover:underline">
@@ -41,8 +36,14 @@
         </table>
 
         <div class="mt-6">
-            <a href="{{ route('admin.order.show') }}" class="text-red-600 hover:underline">&larr; Kembali ke Daftar
-                Order</a>
+            <a href="{{ route('admin.order.show') }}"
+                class="inline-flex items-center px-5 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Kembali
+            </a>
         </div>
+
     </div>
 </x-layoute-admin>

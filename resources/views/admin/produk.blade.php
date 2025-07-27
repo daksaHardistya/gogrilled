@@ -63,7 +63,6 @@
                                     </svg>
                                     Edit
                                 </a>
-
                                 <form action="{{ route('admin.produk.delete', $produk->id_produk) }}" method="GET"
                                     onsubmit="return confirm('Yakin hapus produk?')" class="inline">
                                     @csrf
