@@ -40,17 +40,20 @@ class AdminController extends Controller
         // Ambil semua order dulu
         $orders = $query->get();
 
-        // Filter pelanggan inaktif berdasarkan parameter inaktif (1–6 bulan)
         $hiddenNumbers = collect();
+
         if ($request->filled('inaktif')) {
-            $bulan = $request->inaktif;
-            $batasWaktu = now()->subMonths($bulan);
+            $bulan = (int) $request->inaktif;
 
-            // Ambil nomor pelanggan yang masih aktif (order dalam x bulan terakhir)
-            $activeNumbers = tabel_order::where('created_at', '>=', $batasWaktu)->pluck('id_pel')->unique();
+            if ($bulan >= 1 && $bulan <= 6) {
+                $batasWaktu = now()->subMonths($bulan);
 
-            // Ambil nomor pelanggan dari data pelanggan
-            $hiddenNumbers = \App\Models\data_pelanggan::whereNotIn('id_pel', $activeNumbers)->pluck('nomor_tlp');
+                // Ambil id pelanggan yang memiliki order dalam X bulan terakhir (harus disembunyikan)
+                $recentActive = \App\Models\tabel_order::where('created_at', '>=', $batasWaktu)->pluck('id_pel')->unique();
+
+                // Pelanggan yang tidak ada di daftar recentActive = yang muncul
+                $hiddenNumbers = \App\Models\data_pelanggan::whereIn('id_pel', $recentActive)->pluck('nomor_tlp');
+            }
         }
 
         return view('admin.order', compact('orders', 'hiddenNumbers'));
