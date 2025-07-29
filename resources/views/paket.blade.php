@@ -5,7 +5,6 @@
         <form id="orderPaketForm">
             <input type="hidden" name="tambahpaket" id="orderPaket">
 
-            <!-- === LOOP KATEGORI PAKET === -->
             @php
                 $paketKategori = [
                     'PAKET BASIC' => $paketmenubasic,
@@ -15,6 +14,12 @@
             @endphp
 
             @foreach ($paketKategori as $kategori => $paketList)
+                @php
+                    // Urutkan nama paket secara natural (1,2,3,10…)
+                    $paketList = $paketList->sort(function ($a, $b) {
+                        return strnatcasecmp($a->nama_paket, $b->nama_paket);
+                    });
+                @endphp
                 <div class="card mb-4 shadow-sm bg-transparan text-white">
                     <div class="card-header bg-transparent text-white">
                         <h2 class="kategori mb-0">{{ $kategori }}</h2>
@@ -24,15 +29,15 @@
                             @foreach ($paketList as $row)
                                 <div class="col-12 col-md-4">
                                     <div class="card padding-card shadow-sm">
-                                        <img src="{{ asset('../storage/' . $row->image_paket) }}" <img
-                                            src="{{ asset('../../storage/' . $row->image_paket) }}"
+                                        <img src="{{ asset('storage/' . $row->image_paket) }}"
                                             class="card-img-top img-fluid" alt="{{ $row->nama_paket }}">
                                         <div class="card-body d-flex flex-column">
                                             <input type="hidden" class="id_paket" value="{{ $row->id_paket }}">
                                             <h5 class="card-title nama_paket">{{ $row->nama_paket }}</h5>
                                             <p class="card-text">{{ $row->detail_paket }}</p>
-                                            <h6 class="harga_paket text-danger">Rp.
-                                                {{ number_format($row->harga_paket, 0, ',', '.') }}</h6>
+                                            <h6 class="harga_paket text-danger">
+                                                Rp. {{ number_format($row->harga_paket, 0, ',', '.') }}
+                                            </h6>
 
                                             <div class="mt-auto">
                                                 @if ($row->stock_paket > 0)
@@ -60,15 +65,18 @@
                     </div>
                 </div>
             @endforeach
+
             <div class="fixed-btn justify-content-between mt-4">
                 <x-backbutton />
-                <button type="button" class="btn-next tambahpaket" id="tambahpaket" style="display:none;">Next <i
-                        class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn-next tambahpaket" id="tambahpaket" style="display:none;">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
             <x-contact></x-contact>
         </form>
     </div>
 </x-layoute>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const checkboxes = document.querySelectorAll(".paket-checkbox");
@@ -111,6 +119,7 @@
                         nama_paket: nama,
                         harga_paket: harga,
                         jumlah_paket: jumlah,
+                        stok_paket: maxStok, // Tambahan properti stok_paket
                         image_paket: img
                     });
                 }

@@ -242,11 +242,21 @@ class AdminController extends Controller
     }
 
     // CONTROL UNTUK ADMIN PAKET
-    public function paketShow()
-    {
-        $paketList = menu_paket::all();
-        return view('admin.paket', compact('paketList'));
-    }
+public function paketShow()
+{
+    $paketList = menu_paket::orderByRaw("
+        CASE 
+            WHEN kategori_paket = 'Basic' THEN 1
+            WHEN kategori_paket = 'Special' THEN 2
+            WHEN kategori_paket = 'Family' THEN 3
+            ELSE 4
+        END
+    ")->orderByRaw("CAST(REGEXP_SUBSTR(nama_paket, '[0-9]+') AS UNSIGNED)")
+      ->get();
+
+    return view('admin.paket', compact('paketList'));
+}
+
 
     public function paketCreate()
     {

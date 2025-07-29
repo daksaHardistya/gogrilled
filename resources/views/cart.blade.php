@@ -112,28 +112,27 @@
 
                 const row = document.createElement("tr");
                 row.innerHTML = `
-        <td><img src="${produk.image_produk}" width="70"></td>
-        <td>${produk.nama_produk}</td>
-        <td>Rp. ${produk.harga_produk.toLocaleString("id-ID")}</td>
-        <td>
-            <button class="btn-action" onclick="kurangProduk(${produk.id_produk})">−</button>
-            <span class="qty-text">${produk.jumlah_produk}</span>
-            <button class="btn-action" onclick="tambahProduk(${produk.id_produk})">+</button>
-        </td>
-        <td>Rp. ${subtotal.toLocaleString("id-ID")}</td>
-        <td>
-            <button class="btn-delete" onclick="hapusProduk(${produk.id_produk})"><i class="fas fa-trash"></i></button>
-        </td>
-    `;
+                    <td><img src="${produk.image_produk}" width="70"></td>
+                    <td>${produk.nama_produk}</td>
+                    <td>Rp. ${produk.harga_produk.toLocaleString("id-ID")}</td>
+                    <td>
+                        <button class="btn-action" onclick="kurangProduk(${produk.id_produk})">−</button>
+                        <span class="qty-text">${produk.jumlah_produk}</span>
+                        <button class="btn-action" onclick="tambahProduk(${produk.id_produk})">+</button>
+                    </td>
+                    <td>Rp. ${subtotal.toLocaleString("id-ID")}</td>
+                    <td>
+                        <button class="btn-delete" onclick="hapusProduk(${produk.id_produk})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
                 tabelProduk.appendChild(row);
             });
 
-
             totalBelanja.innerHTML = `
-    <div class="bg-yellow-100 text-red-600 text-base font-semibold px-3 py-2 rounded w-fit text-end">
-        Total: Rp. ${grandTotal.toLocaleString("id-ID")}
-    </div>
-`;
+                <div class="bg-yellow-100 text-red-600 text-base font-semibold px-3 py-2 rounded w-fit text-end">
+                    Total: Rp. ${grandTotal.toLocaleString("id-ID")}
+                </div>
+            `;
             tombolCheckout.disabled = (paketDipilih.length === 0 && produkDipilih.length === 0);
         }
 
@@ -141,9 +140,13 @@
         window.tambahPaket = function(id) {
             const item = paketDipilih.find(p => parseInt(p.id_paket) === parseInt(id));
             if (item) {
-                item.jumlah_paket++;
-                simpanKeLocalStorage();
-                renderTabel();
+                if (item.jumlah_paket < item.stok_paket) { // pengecekan stok paket
+                    item.jumlah_paket++;
+                    simpanKeLocalStorage();
+                    renderTabel();
+                } else {
+                    alert("Stok paket tidak mencukupi.");
+                }
             }
         };
 
@@ -169,9 +172,13 @@
         window.tambahProduk = function(id) {
             const item = produkDipilih.find(p => parseInt(p.id_produk) === parseInt(id));
             if (item) {
-                item.jumlah_produk++;
-                simpanKeLocalStorage();
-                renderTabel();
+                if (item.jumlah_produk < item.stok_produk) { // pengecekan stok produk
+                    item.jumlah_produk++;
+                    simpanKeLocalStorage();
+                    renderTabel();
+                } else {
+                    alert("Stok produk tidak mencukupi.");
+                }
             }
         };
 

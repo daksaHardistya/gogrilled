@@ -52,13 +52,14 @@
         const checkboxes = document.querySelectorAll(".checklis");
         const buttonnext = document.getElementById("buttonnext");
 
+        // Set default tombol
         buttonnext.innerHTML = 'Skip <i class="fas fa-angle-double-right"></i>';
 
+        // Handle perubahan checkbox
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener("change", function() {
                 const id_produk = this.dataset.id;
                 const jumlahWrapper = document.getElementById(`jumlah-wrapper-${id_produk}`);
-                const jumlahInput = document.getElementById(`jumlah${id_produk}`);
 
                 if (this.checked) {
                     jumlahWrapper.style.display = "block";
@@ -73,6 +74,7 @@
             });
         });
 
+        // Handle submit form
         document.getElementById("produkForm").addEventListener("submit", function(e) {
             const produkDipilih = [];
 
@@ -87,28 +89,35 @@
                     const card = document.querySelector(`.produkSatuan-item[data-id="${id}"]`);
                     const img = card.querySelector(".img-produk")?.src || '';
 
+                    // Validasi stok
                     if (jumlah > stok) {
                         alert(`Jumlah produk "${nama}" melebihi stok tersedia (${stok}).`);
                         e.preventDefault();
                         return;
                     }
 
+                    // Simpan semua data termasuk stok
                     produkDipilih.push({
                         id_produk: id,
                         nama_produk: nama,
                         harga_produk: parseInt(harga),
                         jumlah_produk: jumlah,
+                        stok_produk: stok, // stok ikut disimpan
                         image_produk: img
                     });
                 }
             });
 
+            // Ambil data lama di localStorage
             let existingData = JSON.parse(localStorage.getItem("produk_dipilih")) || [];
 
+            // Gabungkan data lama dengan baru
             for (let baru of produkDipilih) {
                 let index = existingData.findIndex(p => p.id_produk === baru.id_produk);
                 if (index !== -1) {
                     existingData[index].jumlah_produk += baru.jumlah_produk;
+                    // Update stok terbaru juga
+                    existingData[index].stok_produk = baru.stok_produk;
                 } else {
                     existingData.push(baru);
                 }
