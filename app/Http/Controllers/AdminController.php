@@ -176,6 +176,11 @@ class AdminController extends Controller
             'harga_produk' => 'required|numeric',
             'stock_produk' => 'required|integer',
             'image_produk' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB
+         ], [
+        // Pesan error kustom
+        'image_produk.image' => 'File yang diunggah harus berupa gambar.',
+        'image_produk.mimes' => 'Format gambar tidak valid. Format yang diperbolehkan: jpeg, png, jpg, svg.',
+        'image_produk.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         if ($request->hasFile('image_produk')) {
@@ -203,7 +208,12 @@ class AdminController extends Controller
             'nama_produk' => 'required',
             'harga_produk' => 'required|numeric',
             'stock_produk' => 'required|integer',
-            'image_produk' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB
+            'image_produk' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120', // Max 5MB
+        ], [
+        // Pesan error kustom
+        'image_produk.image' => 'File yang diunggah harus berupa gambar.',
+        'image_produk.mimes' => 'Format gambar tidak valid. Format yang diperbolehkan: jpeg, png, jpg, svg.',
+        'image_produk.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         if ($request->hasFile('image_produk')) {
@@ -265,28 +275,33 @@ public function paketShow()
 
     // Simpan Paket
     public function paketStore(Request $request)
-    {
-        $data = $request->validate([
-            'kode_paket' => 'required|unique:tabel_paket,kode_paket',
-            'nama_paket' => 'required',
-            'detail_paket' => 'required',
-            'kategori_paket' => 'required',
-            'harga_paket' => 'required|numeric',
-            'stock_paket' => 'required|integer',
-            'image_paket' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB
-        ]);
+{
+    $data = $request->validate([
+        'kode_paket' => 'required|unique:tabel_paket,kode_paket',
+        'nama_paket' => 'required',
+        'detail_paket' => 'required',
+        'kategori_paket' => 'required',
+        'harga_paket' => 'required|numeric',
+        'stock_paket' => 'required|integer',
+        'image_paket' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:5120',
+    ], [
+        // Pesan error kustom
+        'image_paket.image' => 'File yang diunggah harus berupa gambar.',
+        'image_paket.mimes' => 'Format gambar tidak valid. Format yang diperbolehkan: jpeg, png, jpg, svg.',
+        'image_paket.max' => 'Ukuran gambar maksimal 5MB.',
+    ]);
 
-        if ($request->hasFile('image_paket')) {
-            $data['image_paket'] = $request->file('image_paket')->store('menu_paket', 'public');
-        }
-
-        $data['created_at'] = Carbon::now();
-        $data['updated_at'] = Carbon::now();
-
-        menu_paket::create($data); // Pastikan kolom 'image_paket' di model menu_paket sudah ada di $fillable
-
-        return redirect()->route('admin.paket.show')->with('success', 'Paket berhasil ditambahkan');
+    if ($request->hasFile('image_paket')) {
+        $data['image_paket'] = $request->file('image_paket')->store('menu_paket', 'public');
     }
+
+    $data['created_at'] = Carbon::now();
+    $data['updated_at'] = Carbon::now();
+
+    menu_paket::create($data);
+
+    return redirect()->route('admin.paket.show')->with('success', 'Paket berhasil ditambahkan');
+}
 
     // Form Edit
     public function paketEdit($id)
@@ -297,33 +312,39 @@ public function paketShow()
 
     // Update Paket
     public function paketUpdate(Request $request, $id)
-    {
-        $paket = menu_paket::findOrFail($id);
-        $data = $request->validate([
-            'nama_paket' => 'required',
-            'detail_paket' => 'required',
-            'kategori_paket' => 'required',
-            'harga_paket' => 'required|numeric',
-            'stock_paket' => 'required|integer',
-            'image_paket' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5128', // Max 5MB
-        ]);
+{
+    $paket = menu_paket::findOrFail($id);
 
-        if ($request->hasFile('image_paket')) {
-            // Hapus gambar lama jika ada
-            if ($paket->image_paket && Storage::disk('public')->exists($paket->image_paket)) {
-                Storage::disk('public')->delete($paket->image_paket);
-            }
+    $data = $request->validate([
+        'nama_paket' => 'required',
+        'detail_paket' => 'required',
+        'kategori_paket' => 'required',
+        'harga_paket' => 'required|numeric',
+        'stock_paket' => 'required|integer',
+        'image_paket' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:5120', // Max 5MB
+    ], [
+        // Pesan error kustom untuk image
+        'image_paket.image' => 'File yang diunggah harus berupa gambar.',
+        'image_paket.mimes' => 'Format gambar tidak valid. Format yang diperbolehkan: jpeg, png, jpg, svg.',
+        'image_paket.max' => 'Ukuran gambar maksimal 5MB.',
+    ]);
 
-            $data['image_paket'] = $request->file('image_paket')->store('menu_paket', 'public');
-        } else {
-            // Jika tidak ada file baru yang diunggah, pastikan image_paket tidak dihapus dari $data
-            // agar tidak menimpa dengan null jika kolomnya tidak nullable
-            unset($data['image_paket']);
+    if ($request->hasFile('image_paket')) {
+        // Hapus gambar lama jika ada
+        if ($paket->image_paket && Storage::disk('public')->exists($paket->image_paket)) {
+            Storage::disk('public')->delete($paket->image_paket);
         }
 
-        $paket->update($data);
-        return redirect()->route('admin.paket.show')->with('success', 'Paket berhasil diperbarui');
+        // Simpan gambar baru
+        $data['image_paket'] = $request->file('image_paket')->store('menu_paket', 'public');
+    } else {
+        unset($data['image_paket']);
     }
+
+    $paket->update($data);
+
+    return redirect()->route('admin.paket.show')->with('success', 'Paket berhasil diperbarui');
+}
 
     // Hapus Paket
     public function paketDelete($id)

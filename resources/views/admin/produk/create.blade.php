@@ -2,6 +2,11 @@
     <x-navbar-admin></x-navbar-admin><br>
     <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
         <h2 class="text-2xl font-semibold mb-4 text-gray-800">Tambah produk Baru</h2>
+        @error('image_produk')
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+                <strong>Error Gambar:</strong> {{ $message }}
+            </div>
+        @enderror
         <form action="{{ route('admin.produk.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('POST')
