@@ -83,7 +83,7 @@
                     if (jumlah > maxStokProduk) {
                         alert(
                             `Jumlah produk "${nama}" melebihi stok tersedia (${maxStokProduk}).`
-                            );
+                        );
                         return;
                     }
 
@@ -119,9 +119,6 @@
                 });
                 window.location.href = "/cart";
             }
-
-            // window.scrollTo({ top: 0, behavior: 'smooth' });
-            // window.location.href = "/invoice"; // Atau sesuaikan ke halaman yang dituju
         });
     });
 </script>

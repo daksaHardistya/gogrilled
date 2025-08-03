@@ -15,7 +15,6 @@
 
             @foreach ($paketKategori as $kategori => $paketList)
                 @php
-                    // Urutkan nama paket secara natural (1,2,3,10…)
                     $paketList = $paketList->sort(function ($a, $b) {
                         return strnatcasecmp($a->nama_paket, $b->nama_paket);
                     });
@@ -95,7 +94,7 @@
         });
 
         orderButton.addEventListener("click", () => {
-            const paketBaru = [];
+            const paketDipilih = [];
 
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
@@ -105,44 +104,53 @@
                     const hargaText = cardBody.querySelector(".harga_paket").innerText;
                     const jumlahInput = cardBody.querySelector(".jumlah-input");
                     const img = cardBody.closest(".card").querySelector("img").src;
+
                     const jumlah = parseInt(jumlahInput.value);
-                    const maxStokPaket = parseInt(jumlahInput.getAttribute("max"));
+                    const maxStok = parseInt(jumlahInput.getAttribute("max"));
                     const harga = parseInt(hargaText.replace(/[^\d]/g, ''));
+
+                    if (!jumlah || jumlah < 1) {
+                        alert(`Jumlah paket "${nama}" tidak boleh kosong atau nol.`);
+                        return;
+                    }
 
                     if (jumlah > maxStok) {
                         alert(`Jumlah paket "${nama}" melebihi stok tersedia (${maxStok}).`);
                         return;
                     }
 
-                    paketBaru.push({
+                    paketDipilih.push({
                         id_paket: id,
                         nama_paket: nama,
                         harga_paket: harga,
                         jumlah_paket: jumlah,
-                        stok_paket: maxStokPaket, // Tambahan properti stok_paket
+                        stok_paket: maxStok,
                         image_paket: img
                     });
                 }
             });
 
-            const paketLama = JSON.parse(localStorage.getItem("paket_dipilih") || "[]");
+            const existingData = JSON.parse(localStorage.getItem("paket_dipilih") || "[]");
 
-            paketBaru.forEach(paket => {
-                const existing = paketLama.find(p => p.id_paket === paket.id_paket);
+            paketDipilih.forEach(paket => {
+                const existing = existingData.find(p => p.id_paket === paket.id_paket);
                 if (existing) {
                     existing.jumlah_paket += paket.jumlah_paket;
                 } else {
-                    paketLama.push(paket);
+                    existingData.push(paket);
                 }
             });
 
-            localStorage.setItem("paket_dipilih", JSON.stringify(paketLama));
-            alert("Paket telah ditambahkan ke keranjang!");
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-            window.location.href = "/produk";
+            localStorage.setItem("paket_dipilih", JSON.stringify(existingData));
+
+            if (paketDipilih.length > 0) {
+                alert("Paket telah ditambahkan ke keranjang!");
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                window.location.href = "/produk";
+            }
         });
     });
 </script>
