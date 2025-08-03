@@ -106,7 +106,7 @@
                     const jumlahInput = cardBody.querySelector(".jumlah-input");
                     const img = cardBody.closest(".card").querySelector("img").src;
                     const jumlah = parseInt(jumlahInput.value);
-                    const maxStok = parseInt(jumlahInput.getAttribute("max"));
+                    const maxStokPaket = parseInt(jumlahInput.getAttribute("max"));
                     const harga = parseInt(hargaText.replace(/[^\d]/g, ''));
 
                     if (jumlah > maxStok) {
@@ -119,16 +119,11 @@
                         nama_paket: nama,
                         harga_paket: harga,
                         jumlah_paket: jumlah,
-                        stok_paket: maxStok, // Tambahan properti stok_paket
+                        stok_paket: maxStokPaket, // Tambahan properti stok_paket
                         image_paket: img
                     });
                 }
             });
-
-            if (paketBaru.length === 0) {
-                alert("Anda belum memilih paket apapun.");
-                return;
-            }
 
             const paketLama = JSON.parse(localStorage.getItem("paket_dipilih") || "[]");
 

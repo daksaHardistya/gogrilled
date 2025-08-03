@@ -1,12 +1,12 @@
 <x-layoute>
     <x-navbar></x-navbar>
     <div class="produkSatuan">
-        <h1 class="heading-produk">PRODUK SATUAN</h1>
-        <form id="produkForm" action="cart" method="GET">
+        <h1 class="heading-produk">PRODUK</h1>
+        <form id="produkForm">
             <div class="menu-items">
                 @foreach ($produkSatuan as $row)
                     <div class="produkSatuan-item" data-id="{{ $row->id_produk }}">
-                        <img class="img-produk" src="{{ asset('../storage/' . $row->image_produk) }}"
+                        <img class="img-produk" src="{{ asset('storage/' . $row->image_produk) }}"
                             alt="{{ $row->nama_produk }}">
                         <h5 class="card-title nama_produk">{{ $row->nama_produk }}</h5>
                         <h6>Rp. {{ number_format($row->harga_produk, 0, ',', '.') }}</h6>
@@ -35,10 +35,9 @@
             </div><br>
 
             @csrf
-            <div class="fixed-btn justify-content-between mt-4">
+            <div class="fixed-btn justify-between mt-4">
                 <x-backbutton />
-                <input type="hidden" name="produk_terpilih" id="produkTerpilih" value="">
-                <button type="submit" class="btn-next tombolnext" id="buttonnext">Skip <i
+                <button type="button" class="btn-next tombolnext" id="buttonnext">Skip <i
                         class="fas fa-angle-double-right"></i></button>
             </div>
             <x-contact></x-contact>
@@ -46,26 +45,19 @@
     </div>
 </x-layoute>
 
-<!-- === SCRIPT === -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const checkboxes = document.querySelectorAll(".checklis");
         const buttonnext = document.getElementById("buttonnext");
 
-        // Set default tombol
         buttonnext.innerHTML = 'Skip <i class="fas fa-angle-double-right"></i>';
 
-        // Handle perubahan checkbox
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener("change", function() {
                 const id_produk = this.dataset.id;
                 const jumlahWrapper = document.getElementById(`jumlah-wrapper-${id_produk}`);
 
-                if (this.checked) {
-                    jumlahWrapper.style.display = "block";
-                } else {
-                    jumlahWrapper.style.display = "none";
-                }
+                jumlahWrapper.style.display = this.checked ? "block" : "none";
 
                 const adaYangDipilih = Array.from(checkboxes).some(cb => cb.checked);
                 buttonnext.innerHTML = adaYangDipilih ?
@@ -74,59 +66,62 @@
             });
         });
 
-        // Handle submit form
-        document.getElementById("produkForm").addEventListener("submit", function(e) {
+        buttonnext.addEventListener("click", () => {
             const produkDipilih = [];
 
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
                     const id = checkbox.dataset.id;
                     const nama = checkbox.dataset.name;
-                    const harga = checkbox.dataset.price;
+                    const harga = parseInt(checkbox.dataset.price);
                     const jumlahInput = document.getElementById(`jumlah${id}`);
                     const jumlah = parseInt(jumlahInput.value);
-                    const stok = parseInt(jumlahInput.getAttribute("max"));
+                    const maxStokProduk = parseInt(jumlahInput.getAttribute("max"));
                     const card = document.querySelector(`.produkSatuan-item[data-id="${id}"]`);
                     const img = card.querySelector(".img-produk")?.src || '';
 
-                    // Validasi stok
-                    if (jumlah > stok) {
-                        alert(`Jumlah produk "${nama}" melebihi stok tersedia (${stok}).`);
-                        e.preventDefault();
+                    if (jumlah > maxStokProduk) {
+                        alert(
+                            `Jumlah produk "${nama}" melebihi stok tersedia (${maxStokProduk}).`
+                            );
                         return;
                     }
 
-                    // Simpan semua data termasuk stok
                     produkDipilih.push({
                         id_produk: id,
                         nama_produk: nama,
-                        harga_produk: parseInt(harga),
+                        harga_produk: harga,
                         jumlah_produk: jumlah,
-                        stok_produk: stok, // stok ikut disimpan
+                        stok_produk: maxStokProduk,
                         image_produk: img
                     });
                 }
             });
 
-            // Ambil data lama di localStorage
-            let existingData = JSON.parse(localStorage.getItem("produk_dipilih")) || [];
+            const existingData = JSON.parse(localStorage.getItem("produk_dipilih") || "[]");
 
-            // Gabungkan data lama dengan baru
-            for (let baru of produkDipilih) {
-                let index = existingData.findIndex(p => p.id_produk === baru.id_produk);
-                if (index !== -1) {
-                    existingData[index].jumlah_produk += baru.jumlah_produk;
-                    // Update stok terbaru juga
-                    existingData[index].stok_produk = baru.stok_produk;
+            produkDipilih.forEach(produk => {
+                const existing = existingData.find(p => p.id_produk === produk.id_produk);
+                if (existing) {
+                    existing.jumlah_produk += produk.jumlah_produk;
                 } else {
-                    existingData.push(baru);
+                    existingData.push(produk);
                 }
-            }
+            });
+
+            localStorage.setItem("produk_dipilih", JSON.stringify(existingData));
 
             if (produkDipilih.length > 0) {
-                localStorage.setItem("produk_dipilih", JSON.stringify(existingData));
                 alert("Produk berhasil ditambahkan ke keranjang.");
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                window.location.href = "/cart";
             }
+
+            // window.scrollTo({ top: 0, behavior: 'smooth' });
+            // window.location.href = "/invoice"; // Atau sesuaikan ke halaman yang dituju
         });
     });
 </script>
