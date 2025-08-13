@@ -68,7 +68,6 @@
 
         buttonnext.addEventListener("click", () => {
             const produkDipilih = [];
-
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
                     const id = checkbox.dataset.id;
@@ -119,6 +118,7 @@
                 });
                 window.location.href = "/cart";
             }
+            window.location.href = "/cart";
         });
     });
 </script>

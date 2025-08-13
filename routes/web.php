@@ -22,36 +22,39 @@ Route::get('/admin', function () {
     return redirect()->route('admin.login');
 });
 
-// Admin Route Group
-Route::prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        // Login
-        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [AdminAuthController::class, 'login']);
-        Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+// Grup admin
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Login & Logout (tidak butuh middleware)
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login']);
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
-        // Dashboard (Proteksi Login Admin)
-        Route::middleware('auth:admin')->group(function () {
-            Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-            Route::get('/order', [AdminController::class, 'orderShow'])->name('order.show');
-            Route::put('/order/{id}/update', [AdminController::class, 'orderUpdate'])->name('order.update');
-            Route::get('/pelanggan/{id}', [AdminController::class, 'pelangganDetail'])->name('pelanggan.detail');
-            Route::get('/produk', [AdminController::class, 'produkShow'])->name('produk.show');
-            Route::get('/paket', [AdminController::class, 'paketShow'])->name('paket.show');
-            Route::get('/paket/create', [AdminController::class, 'paketCreate'])->name('paket.create');
-            Route::post('/paket/store', [AdminController::class, 'paketStore'])->name('paket.store');
-            Route::get('/paket/{id_paket}/edit', [AdminController::class, 'paketEdit'])->name('paket.edit');
-            Route::put('/paket/{id}/update', [AdminController::class, 'paketUpdate'])->name('paket.update');
-            Route::get('/paket/{id}/delete', [AdminController::class, 'paketDelete'])->name('paket.delete');
-            Route::put('/paket/update-stock/{id}', [AdminController::class, 'updateStockPaket'])->name('paket.stock.update');
-            Route::get('/produk/create', [AdminController::class, 'produkCreate'])->name('produk.create');
-            Route::post('/produk/store', [AdminController::class, 'produkStore'])->name('produk.store');
-            Route::get('/produk/{id}/edit', [AdminController::class, 'produkEdit'])->name('produk.edit');
-            Route::put('/produk/{id}/update', [AdminController::class, 'produkUpdate'])->name('produk.update');
-            Route::get('/produk/{id}/delete', [AdminController::class, 'produkDelete'])->name('produk.delete');
-            Route::put('/produk/update-stock/{id}', [AdminController::class, 'updateStockProduk'])->name('produk.stock.update');
-            Route::get('/pembukuan', [AdminController::class, 'pembukuanShow'])->name('pembukuan.show');
+    // Semua halaman admin diproteksi auth:admin
+    Route::middleware('auth.admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/order', [AdminController::class, 'orderShow'])->name('order.show');
+        Route::put('/order/{id}/update', [AdminController::class, 'orderUpdate'])->name('order.update');
+        Route::get('/pelanggan/{id}', [AdminController::class, 'pelangganDetail'])->name('pelanggan.detail');
 
-        });
+        // Paket
+        Route::get('/paket', [AdminController::class, 'paketShow'])->name('paket.show');
+        Route::get('/paket/create', [AdminController::class, 'paketCreate'])->name('paket.create');
+        Route::post('/paket/store', [AdminController::class, 'paketStore'])->name('paket.store');
+        Route::get('/paket/{id_paket}/edit', [AdminController::class, 'paketEdit'])->name('paket.edit');
+        Route::put('/paket/{id}/update', [AdminController::class, 'paketUpdate'])->name('paket.update');
+        Route::get('/paket/{id}/delete', [AdminController::class, 'paketDelete'])->name('paket.delete');
+        Route::put('/paket/update-stock/{id}', [AdminController::class, 'updateStockPaket'])->name('paket.stock.update');
+
+        // Produk
+        Route::get('/produk', [AdminController::class, 'produkShow'])->name('produk.show');
+        Route::get('/produk/create', [AdminController::class, 'produkCreate'])->name('produk.create');
+        Route::post('/produk/store', [AdminController::class, 'produkStore'])->name('produk.store');
+        Route::get('/produk/{id}/edit', [AdminController::class, 'produkEdit'])->name('produk.edit');
+        Route::put('/produk/{id}/update', [AdminController::class, 'produkUpdate'])->name('produk.update');
+        Route::get('/produk/{id}/delete', [AdminController::class, 'produkDelete'])->name('produk.delete');
+        Route::put('/produk/update-stock/{id}', [AdminController::class, 'updateStockProduk'])->name('produk.stock.update');
+
+        // Pembukuan
+        Route::get('/pembukuan', [AdminController::class, 'pembukuanShow'])->name('pembukuan.show');
     });
+});
