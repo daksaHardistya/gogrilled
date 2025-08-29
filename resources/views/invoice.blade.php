@@ -49,7 +49,7 @@
                     <button id="finish-button" class="btn-sukses text-white rounded transition duration-200">Selesai <i
                             class="fas fa-check-circle"></i></button>
                 </div>
-                <x-contact></x-contact>
+                
             </div>
         </div>
     </div>

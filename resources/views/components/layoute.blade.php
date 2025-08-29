@@ -32,6 +32,7 @@
 
 <body>
     {{ $slot }}
+    <x-bubble-float></x-bubble-float>
 </body>
 
 </html>

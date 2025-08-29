@@ -40,15 +40,15 @@
 
                                             <div class="mt-auto">
                                                 @if ($row->stock_paket > 0)
-                                                    <div class="form-check mb-2">
-                                                        <input class="form-check-input paket-checkbox" type="checkbox"
-                                                            id="checkbox{{ $row->id_paket }}">
-                                                        <label class="form-check-label"
-                                                            for="checkbox{{ $row->id_paket }}">
-                                                            Pilih
-                                                        </label>
-                                                    </div>
-                                                    <input type="number" class="form-control jumlah-input"
+                                                    <!-- Tombol pilih -->
+                                                    <button type="button"
+                                                        class="paket-btn"
+                                                        data-selected="false">
+                                                        ✔ Pilih
+                                                    </button>
+
+                                                    <!-- Input jumlah -->
+                                                    <input type="number" class="form-control jumlah-input mt-2"
                                                         min="1" value="1"
                                                         data-stok="{{ $row->stock_paket }}"
                                                         max="{{ $row->stock_paket }}" style="display: none;">
@@ -71,24 +71,39 @@
                     Next <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
-            <x-contact></x-contact>
+            
         </form>
     </div>
 </x-layoute>
 
+<style>
+
+</style>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const checkboxes = document.querySelectorAll(".paket-checkbox");
+        const paketButtons = document.querySelectorAll(".paket-btn");
         const orderButton = document.getElementById("tambahpaket");
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener("change", () => {
-                const cardBody = checkbox.closest(".card-body");
+        paketButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const cardBody = btn.closest(".card-body");
                 const jumlahInput = cardBody.querySelector(".jumlah-input");
 
-                jumlahInput.style.display = checkbox.checked ? "block" : "none";
+                // Toggle status dipilih
+                const selected = btn.getAttribute("data-selected") === "true";
+                if (selected) {
+                    btn.setAttribute("data-selected", "false");
+                    btn.innerText = "✔ Pilih";
+                    jumlahInput.style.display = "none";
+                } else {
+                    btn.setAttribute("data-selected", "true");
+                    btn.innerText = "✖ Batal";
+                    jumlahInput.style.display = "block";
+                }
 
-                const adaYangDipilih = Array.from(checkboxes).some(cb => cb.checked);
+                // cek apakah ada yang dipilih
+                const adaYangDipilih = Array.from(paketButtons).some(b => b.getAttribute("data-selected") === "true");
                 orderButton.style.display = adaYangDipilih ? "inline-block" : "none";
             });
         });
@@ -96,9 +111,9 @@
         orderButton.addEventListener("click", () => {
             const paketDipilih = [];
 
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    const cardBody = checkbox.closest(".card-body");
+            paketButtons.forEach(btn => {
+                if (btn.getAttribute("data-selected") === "true") {
+                    const cardBody = btn.closest(".card-body");
                     const id = cardBody.querySelector(".id_paket").value;
                     const nama = cardBody.querySelector(".nama_paket").innerText;
                     const hargaText = cardBody.querySelector(".harga_paket").innerText;
@@ -145,10 +160,7 @@
 
             if (paketDipilih.length > 0) {
                 alert("Paket telah ditambahkan ke keranjang!");
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 window.location.href = "/produk";
             }
         });

@@ -24,9 +24,9 @@
                 <li class="nav-item">
                     <a class="nav-link text-white fw-bold" href="/produk">PRODUK</a>
                 </li>
-                <li class="nav-item position-relative">
+                {{-- <li class="nav-item position-relative">
                     <a class="nav-link" href="/cart" aria-label="Cart">
-                        {{-- <img src="img/cart-icon.png" alt="Cart Icon" style="height: 24px;" /> --}}
+                        <img src="img/cart-icon.png" alt="Cart Icon" style="height: 24px;" />
                         <i class="fas fa-shopping-cart"></i>
 
                         <span id="cart-count"
@@ -35,28 +35,10 @@
                             0
                         </span>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </div>
     </div>
 </nav>
 
-<script>
-    function updateCartCount() {
-        const paket = JSON.parse(localStorage.getItem('paket_dipilih') || '[]');
-        const produk = JSON.parse(localStorage.getItem('produk_dipilih') || '[]');
 
-        let totalCount = 0;
-
-        paket.forEach(item => totalCount += item.jumlah_paket || 1);
-        produk.forEach(item => totalCount += item.jumlah_produk || 1);
-
-        const countElement = document.getElementById('cart-count');
-        if (countElement) {
-            countElement.textContent = totalCount;
-            countElement.style.display = totalCount > 0 ? 'inline-block' : 'none';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', updateCartCount);
-</script>

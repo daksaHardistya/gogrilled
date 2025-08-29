@@ -38,7 +38,7 @@
             </div>
         </form>
     </div>
-    <x-contact></x-contact>
+    
 </x-layoute>
 
 <script>

@@ -12,23 +12,28 @@
                         <h6>Rp. {{ number_format($row->harga_produk, 0, ',', '.') }}</h6>
 
                         @if ($row->stock_produk > 0)
-                            <div class="flex items-center gap-2 mt-2">
-                                <input class="checklis w-5 h-5" id="checkbox{{ $row->id_produk }}" type="checkbox"
-                                    data-id="{{ $row->id_produk }}" data-name="{{ $row->nama_produk }}"
-                                    data-price="{{ $row->harga_produk }}">
-                                <label for="checkbox{{ $row->id_produk }}" class="text-sm">Pilih</label>
+                            <div class="mt-2">
+                                <button type="button"
+                                    class="paket-btn bg-green-600 text-white px-3 py-1 rounded-md text-sm"
+                                    data-id="{{ $row->id_produk }}"
+                                    data-name="{{ $row->nama_produk }}"
+                                    data-price="{{ $row->harga_produk }}"
+                                    data-stok="{{ $row->stock_produk }}"
+                                    data-selected="false">
+                                    ✔ Pilih
+                                </button>
                             </div>
 
                             <div class="mt-2" style="display: none;" id="jumlah-wrapper-{{ $row->id_produk }}">
                                 <label for="jumlah{{ $row->id_produk }}" class="label-jumlah text-sm">Jumlah:</label>
                                 <input id="jumlah{{ $row->id_produk }}" type="number" class="jumlah-pesanan"
                                     data-id="{{ $row->id_produk }}" min="1" value="1"
-                                    max="{{ $row->stock_produk }}" data-stok="{{ $row->stock_produk }}"
-                                    style="width: 60px;">
+                                    max="{{ $row->stock_produk }}" style="width: 60px;">
                             </div>
                         @else
-                            <h3 style="color: red;">{{ $row->nama_produk }} - <span style="font-weight: bold;">Stok
-                                    Habis</span></h3>
+                            <h3 style="color: red;">{{ $row->nama_produk }} -
+                                <span style="font-weight: bold;">Stok Habis</span>
+                            </h3>
                         @endif
                     </div>
                 @endforeach
@@ -37,29 +42,44 @@
             @csrf
             <div class="fixed-btn justify-between mt-4">
                 <x-backbutton />
-                <button type="button" class="btn-next tombolnext" id="buttonnext">Skip <i
-                        class="fas fa-angle-double-right"></i></button>
+                <button type="button" class="btn-next tombolnext" id="buttonnext">
+                    Skip <i class="fas fa-angle-double-right"></i>
+                </button>
             </div>
-            <x-contact></x-contact>
+            
         </form>
     </div>
 </x-layoute>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const checkboxes = document.querySelectorAll(".checklis");
+        const buttons = document.querySelectorAll(".paket-btn");
         const buttonnext = document.getElementById("buttonnext");
 
+        // default Skip
         buttonnext.innerHTML = 'Skip <i class="fas fa-angle-double-right"></i>';
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener("change", function() {
+        buttons.forEach(button => {
+            button.addEventListener("click", function() {
                 const id_produk = this.dataset.id;
                 const jumlahWrapper = document.getElementById(`jumlah-wrapper-${id_produk}`);
+                const selected = this.dataset.selected === "true";
 
-                jumlahWrapper.style.display = this.checked ? "block" : "none";
+                if (selected) {
+                    this.dataset.selected = "false";
+                    this.innerHTML = "✔ Pilih";
+                    this.classList.remove("bg-red-600");
+                    this.classList.add("bg-green-600");
+                    jumlahWrapper.style.display = "none";
+                } else {
+                    this.dataset.selected = "true";
+                    this.innerHTML = "❌ Batal";
+                    this.classList.remove("bg-green-600");
+                    this.classList.add("bg-red-600");
+                    jumlahWrapper.style.display = "block";
+                }
 
-                const adaYangDipilih = Array.from(checkboxes).some(cb => cb.checked);
+                const adaYangDipilih = Array.from(buttons).some(btn => btn.dataset.selected === "true");
                 buttonnext.innerHTML = adaYangDipilih ?
                     'Next <i class="fas fa-arrow-right"></i>' :
                     'Skip <i class="fas fa-angle-double-right"></i>';
@@ -68,11 +88,11 @@
 
         buttonnext.addEventListener("click", () => {
             const produkDipilih = [];
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    const id = checkbox.dataset.id;
-                    const nama = checkbox.dataset.name;
-                    const harga = parseInt(checkbox.dataset.price);
+            buttons.forEach(button => {
+                if (button.dataset.selected === "true") {
+                    const id = button.dataset.id;
+                    const nama = button.dataset.name;
+                    const harga = parseInt(button.dataset.price);
                     const jumlahInput = document.getElementById(`jumlah${id}`);
                     const jumlah = parseInt(jumlahInput.value);
                     const maxStokProduk = parseInt(jumlahInput.getAttribute("max"));
@@ -80,9 +100,7 @@
                     const img = card.querySelector(".img-produk")?.src || '';
 
                     if (jumlah > maxStokProduk) {
-                        alert(
-                            `Jumlah produk "${nama}" melebihi stok tersedia (${maxStokProduk}).`
-                        );
+                        alert(`Jumlah produk "${nama}" melebihi stok tersedia (${maxStokProduk}).`);
                         return;
                     }
 
@@ -112,13 +130,11 @@
 
             if (produkDipilih.length > 0) {
                 alert("Produk berhasil ditambahkan ke keranjang.");
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.location.href = "/cart";
+            } else {
                 window.location.href = "/cart";
             }
-            window.location.href = "/cart";
         });
     });
 </script>

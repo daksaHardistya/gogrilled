@@ -9,6 +9,6 @@
             </div>
             <a class="button-order" href='paket'>Order Now</a>
         </div>
-        <x-contact></x-contact>
+        
     </div>
 </x-layoute>

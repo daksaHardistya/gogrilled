@@ -55,7 +55,7 @@
                 </div>
             </div>
         </div>
-        <x-contact></x-contact>
+        
     </div>
 </x-layoute>
 <script>

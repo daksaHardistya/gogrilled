@@ -80,7 +80,7 @@
             </button>
 
         </div>
-        <x-contact></x-contact>
+        
     </div>
 
     <script>
