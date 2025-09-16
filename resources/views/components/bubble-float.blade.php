@@ -1,20 +1,22 @@
 <!-- Bubble Icons (WhatsApp & Cart) -->
+<!-- Bubble Icons (WhatsApp & Cart) -->
 <div class="bubble-container">
     <!-- Cart -->
     <div class="bubble-icon bubble-cart">
         <a class="nav-link" href="/cart" aria-label="Cart">
-            <i class="fas fa-shopping-cart fa-lg"></i>
+            <i class="fa-solid fa-cart-shopping fa-lg"></i>
             <span id="cart-count">0</span>
         </a>
     </div>
 
     <!-- WhatsApp -->
     <div class="bubble-icon bubble-wa">
-        <a href="https://wa.me/6281938103934" target="_blank" aria-label="WhatsApp" style="color: white;">
-            <i class="fab fa-whatsapp fa-2x"></i>
+        <a href="https://wa.me/6281938103934" target="_blank" aria-label="WhatsApp">
+            <i class="fa-brands fa-whatsapp fa-2x"></i>
         </a>
     </div>
 </div>
+
 
 <script>
     function updateCartCount() {

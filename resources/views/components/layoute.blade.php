@@ -7,9 +7,11 @@
     <title>Go.Grilled</title>
     <link rel="icon" href="{{ asset('img/logos/logo.png') }}">
 
-    <!-- Font Awesome -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Font Awesome (CSS only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/k7ujTnH1z4+z7Yd2XnZt7uj1l4lVYJdZc8N1gOqQO6P2fAqK1pJ7smXKp0Dqf9TwFvfj5E1n9/0nA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,14 +23,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
     <!-- AlpineJS -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 
     <!-- Vite (TailwindCSS & JS) -->
     @vite(['resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
-
 </head>
+
 
 <body>
     {{ $slot }}
